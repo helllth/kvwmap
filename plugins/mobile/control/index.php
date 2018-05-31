@@ -15,10 +15,11 @@ include_once(CLASSPATH . 'data_import_export.php');
 
 /**
 * Anwendungsfälle
-* mobile_get_stellen
-* mobile_get_layers
-* mobile_sync
 * mobile_delete_images
+* mobile_get_layers
+* mobile_get_stellen
+* mobile_show_info
+* mobile_sync
 * mobile_upload_images
 */
 
@@ -47,18 +48,24 @@ switch($this->go) {
 		echo json_encode($result);
 	} break;
 
-	case 'mobile_upload_image' : {
-		$this->checkCaseAllowed($this->go);
-		$result = $this->mobile_upload_image($this->formvars['selected_layer_id'], $_FILES);
-		echo json_encode($result);
-	} break;
-
 	case 'mobile_download_image' : {
 		$this->checkCaseAllowed($this->go);
 		$file = $this->formvars['image'];
 		header('Content-Type: image/jpeg');
 		header('Content-Length: ' . filesize($file));
 		readfile($file);
+	} break;
+
+	case 'mobile_show_info' : {
+		$this->checkCaseAllowed($this->go);
+		$this->main = '../../plugins/mobile/view/app_info.php';
+		$this->output();
+	} break;
+
+	case 'mobile_upload_image' : {
+		$this->checkCaseAllowed($this->go);
+		$result = $this->mobile_upload_image($this->formvars['selected_layer_id'], $_FILES);
+		echo json_encode($result);
 	} break;
 
 	default : {
