@@ -406,6 +406,23 @@
 			FOR EACH STATEMENT
 			EXECUTE PROCEDURE " . $layer->get('schema') . ".create_" . $layer->get('maintable') . "_insert_delta();
 
+
+			CREATE OR REPLACE FUNCTION " . $layer->get('schema') . ".create_" . $layer->get('maintable') . "_insert_or_update_row()
+			RETURNS trigger AS
+			$$
+				BEGIN
+					NEW.version := (SELECT (coalesce(max(version), 1))::integer FROM " . $layer->get('schema') . "." . $layer->get('maintable') . "_deltas);
+					RETURN NEW;
+				END;
+			$$
+			LANGUAGE plpgsql VOLATILE COST 100;
+
+			CREATE TRIGGER create_" . $layer->get('maintable') . "_insert_or_update_row_trigger
+			BEFORE INSERT OR UPDATE
+			ON " . $layer->get('schema') . "." . $layer->get('maintable') . "
+			FOR EACH ROW
+			EXECUTE PROCEDURE " . $layer->get('schema') . ".create_" . $layer->get('maintable') . "_insert_or_update_row();
+
 			CREATE OR REPLACE FUNCTION " . $layer->get('schema') . ".create_" . $layer->get('maintable') . "_update_delta()
 			RETURNS trigger AS
 			$$
